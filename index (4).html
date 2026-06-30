@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Afrose Tours — Plan Your India Trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#1B2A4A;
+    --marigold:#E8A33D;
+    --terracotta:#C1502E;
+    --cream:#F7F1E3;
+    --forest:#2F5233;
+    --ink:#241F1A;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+  }
+  .topbar{
+    background:var(--indigo);
+    color:var(--cream);
+    padding:18px 24px;
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    border-bottom:4px solid var(--marigold);
+  }
+  .topbar .mark{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:1.5rem;
+    letter-spacing:-0.5px;
+  }
+  .topbar .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;
+    opacity:0.7;
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+  .hero{
+    padding:48px 24px 24px;
+    max-width:920px;
+    margin:0 auto;
+  }
+  .hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(2rem, 5vw, 3.4rem);
+    line-height:1.05;
+    color:var(--indigo);
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--terracotta);
+  }
+  .hero p{
+    margin-top:14px;
+    max-width:520px;
+    color:#5a5048;
+    font-size:1.05rem;
+  }
+  .form-card{
+    max-width:920px;
+    margin:0 auto 48px;
+    padding:0 24px;
+  }
+  .ticket{
+    background:white;
+    border:2px solid var(--indigo);
+    border-radius:4px;
+    padding:28px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:18px;
+    position:relative;
+    box-shadow:6px 6px 0 var(--marigold);
+  }
+  .ticket::before, .ticket::after{
+    content:"";
+    position:absolute;
+    width:18px; height:18px;
+    background:var(--cream);
+    border:2px solid var(--indigo);
+    border-radius:50%;
+    top:50%;
+    transform:translateY(-50%);
+  }
+  .ticket::before{ left:-11px; }
+  .ticket::after{ right:-11px; }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--terracotta);
+    font-weight:600;
+  }
+  .field input, .field select{
+    border:none;
+    border-bottom:2px solid var(--indigo);
+    background:transparent;
+    font-family:'Inter',sans-serif;
+    font-size:1rem;
+    padding:6px 2px;
+    color:var(--ink);
+  }
+  .field input:focus, .field select:focus{
+    outline:none;
+    border-bottom-color:var(--terracotta);
+  }
+  .generate-row{
+    grid-column:1/-1;
+    display:flex;
+    justify-content:flex-end;
+    margin-top:6px;
+  }
+  button#generateBtn{
+    background:var(--terracotta);
+    color:white;
+    border:none;
+    padding:14px 28px;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:500;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-size:0.8rem;
+    border-radius:2px;
+    cursor:pointer;
+    transition:background 0.15s ease, transform 0.1s ease;
+  }
+  button#generateBtn:hover{ background:var(--indigo); }
+  button#generateBtn:active{ transform:translateY(1px); }
+  .error-msg{
+    grid-column:1/-1;
+    color:var(--terracotta);
+    font-size:0.85rem;
+    font-family:'JetBrains Mono',monospace;
+    display:none;
+  }
+  #results{
+    max-width:920px;
+    margin:0 auto 80px;
+    padding:0 24px;
+  }
+  .trip-summary{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+    color:var(--forest);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:22px;
+    padding-bottom:10px;
+    border-bottom:1px dashed #c9bfa8;
+  }
+  .day-block{
+    margin-bottom:36px;
+  }
+  .day-label{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .day-number{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:2.4rem;
+    color:var(--indigo);
+    line-height:1;
+  }
+  .day-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.78rem;
+    color:#8a7f6e;
+  }
+  .places-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px,1fr));
+    gap:18px;
+  }
+  .place-card{
+    background:white;
+    border:1px solid #e3d9c2;
+    border-radius:6px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .place-card img{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    display:block;
+    background:#e3d9c2;
+  }
+  .place-info{
+    padding:14px 16px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    flex:1;
+  }
+  .place-info h3{
+    font-family:'Fraunces',serif;
+    font-size:1.15rem;
+    color:var(--indigo);
+  }
+  .place-info p{
+    font-size:0.88rem;
+    color:#5a5048;
+    flex:1;
+  }
+  .best-time{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:var(--forest);
+    background:#eef3ea;
+    padding:4px 8px;
+    border-radius:2px;
+    align-self:flex-start;
+  }
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:#8a7f6e;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.85rem;
+  }
+  footer{
+    text-align:center;
+    padding:24px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;
+    color:#8a7f6e;
+    border-top:1px solid #e3d9c2;
+  }
+  @media (max-width:700px){
+    .ticket{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="mark">Afrose Tours</span>
+  <span class="tag">trip planner</span>
+</div>
+
+<div class="hero">
+  <h1>Tell us your dates.<br><em>We'll map the journey.</em></h1>
+  <p>Pick a state and your travel window — get a day-by-day plan built from the places worth your time.</p>
+</div>
+
+<div class="form-card">
+  <div class="ticket">
+    <div class="field">
+      <label for="startDate">Departure</label>
+      <input type="date" id="startDate">
+    </div>
+    <div class="field">
+      <label for="endDate">Return</label>
+      <input type="date" id="endDate">
+    </div>
+    <div class="field">
+      <label for="stateSelect">Destination state</label>
+      <select id="stateSelect"></select>
+    </div>
+    <div class="generate-row">
+      <span class="error-msg" id="errorMsg"></span>
+      <button id="generateBtn">Generate itinerary</button>
+    </div>
+  </div>
+</div>
+
+<div id="results">
+  <div class="empty-state">Fill the ticket above to see your day-by-day plan.</div>
+</div>
+
+<footer>Built for Indian travellers · data is a curated starting point, always verify local timings before you go</footer>
+
+<script src="data.js"></script>
+<script>
+const stateSelect = document.getElementById('stateSelect');
+Object.keys(TRAVEL_DATA).sort().forEach(state=>{
+  const opt = document.createElement('option');
+  opt.value = state;
+  opt.textContent = state;
+  stateSelect.appendChild(opt);
+});
+
+function formatDate(d){
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+}
+
+document.getElementById('generateBtn').addEventListener('click', ()=>{
+  const errorMsg = document.getElementById('errorMsg');
+  errorMsg.style.display='none';
+
+  const startVal = document.getElementById('startDate').value;
+  const endVal = document.getElementById('endDate').value;
+  const state = stateSelect.value;
+
+  if(!startVal || !endVal){
+    errorMsg.textContent = 'Pick both dates.';
+    errorMsg.style.display='block';
+    return;
+  }
+  const start = new Date(startVal);
+  const end = new Date(endVal);
+  const dayCount = Math.round((end-start)/(1000*60*60*24)) + 1;
+
+  if(dayCount < 1){
+    errorMsg.textContent = 'Return date must be after departure.';
+    errorMsg.style.display='block';
+    return;
+  }
+  if(dayCount > 30){
+    errorMsg.textContent = 'Keep it under 30 days for now.';
+    errorMsg.style.display='block';
+    return;
+  }
+
+  const places = TRAVEL_DATA[state] || [];
+  if(places.length === 0){
+    errorMsg.textContent = 'No data for this state yet.';
+    errorMsg.style.display='block';
+    return;
+  }
+
+  renderItinerary(start, dayCount, state, places);
+});
+
+function renderItinerary(start, dayCount, state, places){
+  const results = document.getElementById('results');
+  results.innerHTML = '';
+
+  const summary = document.createElement('div');
+  summary.className = 'trip-summary';
+  summary.textContent = `${dayCount} day${dayCount>1?'s':''} in ${state} · ${formatDate(start)} onward`;
+  results.appendChild(summary);
+
+  // Distribute places across days, 2 per day, cycling if itinerary longer than data
+  const placesPerDay = 2;
+  for(let d=0; d<dayCount; d++){
+    const dayDiv = document.createElement('div');
+    dayDiv.className = 'day-block';
+
+    const dayDate = new Date(start);
+    dayDate.setDate(dayDate.getDate()+d);
+
+    const label = document.createElement('div');
+    label.className = 'day-label';
+    label.innerHTML = `<span class="day-number">${String(d+1).padStart(2,'0')}</span><span class="day-date">${formatDate(dayDate)}</span>`;
+    dayDiv.appendChild(label);
+
+    const row = document.createElement('div');
+    row.className = 'places-row';
+
+    for(let p=0; p<placesPerDay; p++){
+      const idx = (d*placesPerDay + p) % places.length;
+      const place = places[idx];
+      const card = document.createElement('div');
+      card.className = 'place-card';
+      card.innerHTML = `
+        <img src="${place.image}" alt="${place.name}" loading="lazy" onerror="this.style.display='none'">
+        <div class="place-info">
+          <h3>${place.name}</h3>
+          <p>${place.description}</p>
+          <span class="best-time">Best time: ${place.bestTime}</span>
+        </div>
+      `;
+      row.appendChild(card);
+    }
+    dayDiv.appendChild(row);
+    results.appendChild(dayDiv);
+  }
+}
+</script>
+
+</body>
+</html>
